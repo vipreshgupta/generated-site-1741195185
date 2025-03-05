@@ -1,0 +1,297 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Typing Test</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: #fff;
+            padding: 10px 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header img {
+            height: 40px;
+        }
+
+        nav a {
+            margin-left: 20px;
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+
+        nav a:hover {
+            color: #007bff;
+        }
+
+        /* Main Content Styles */
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        #typing-area {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 80%;
+            max-width: 800px;
+            text-align: center;
+        }
+
+        #text-display {
+            font-size: 1.5em;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            white-space: pre-wrap;
+            word-wrap: break-word; /* Handles long words */
+            overflow-wrap: break-word; /* Standard property */
+            hyphens: auto; /* Optional: Enable hyphenation */
+        }
+
+        #user-input {
+            width: calc(100% - 20px);
+            padding: 10px;
+            font-size: 1.5em;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            outline: none;
+        }
+        #user-input:focus {
+            border-color: #007bff;
+        }
+
+        #statistics-panel {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .stat-label {
+            color: #666;
+        }
+
+        /* Footer Styles */
+        footer {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+            margin-top: auto;
+        }
+
+        footer a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        footer a:hover{
+            text-decoration: underline;
+        }
+
+        footer img {
+            height: 20px;
+            vertical-align: middle;
+        }
+
+        /* Animations */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        .shake {
+            animation: shake 0.5s;
+        }
+        .correct {
+            color: green;
+        }
+        .incorrect{
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <img src="https://picsum.photos/id/237/200/300" alt="Logo">
+        <nav>
+            <a href="#">Home</a>
+            <a href="#">About</a>
+            <a href="#">Settings</a>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <section id="typing-area">
+            <div id="text-display"></div>
+            <input type="text" id="user-input" autofocus>
+            <div id="statistics-panel">
+                <div class="stat-item">
+                    <div class="stat-value" id="wpm">0</div>
+                    <div class="stat-label">WPM</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="accuracy">100</div>
+                    <div class="stat-label">Accuracy</div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>Contact Information</p>
+        <div class="social-media">
+            <a href="#"><img src="https://picsum.photos/id/64/200/300" alt="Social Icon"></a>
+            <a href="#"><img src="https://picsum.photos/id/65/200/300" alt="Social Icon"></a>
+        </div>
+    </footer>
+
+    <script>
+    const textDisplay = document.getElementById('text-display');
+    const userInput = document.getElementById('user-input');
+    const wpmDisplay = document.getElementById('wpm');
+    const accuracyDisplay = document.getElementById('accuracy');
+
+    const quotes = [
+    "The quick brown fox jumps over the lazy dog.",
+    "Practice makes perfect.",
+    "Typing is a skill that everyone can improve.",
+    "The best way to learn to type is to practice regularly.",
+    "A journey of a thousand miles begins with a single step.",
+    "The only way to do great work is to love what you do.",
+    "Strive not to be a success, but rather to be of value.",
+    "The mind is everything. What you think you become.",
+    "Life is what happens when you're busy making other plans.",
+    "You miss 100% of the shots you don't take."
+    ];
+
+    let startTime;
+    let currentQuote = '';
+    let charIndex = 0;
+    let correctChars = 0;
+    let totalChars = 0;
+
+    function getRandomQuote() {
+        return quotes[Math.floor(Math.random() * quotes.length)];
+    }
+
+    function initializeTest() {
+        currentQuote = getRandomQuote();
+        textDisplay.innerHTML = '';
+        currentQuote.split('').forEach(char => {
+            const charSpan = document.createElement('span');
+            charSpan.innerText = char;
+            textDisplay.appendChild(charSpan);
+        });
+        userInput.value = '';
+        charIndex = 0;
+        correctChars = 0;
+        totalChars = 0;
+        startTime = new Date();
+        updateStats(); // Initialize stats display
+    }
+
+    function updateStats() {
+        const elapsedTime = (new Date() - startTime) / 1000; // in seconds
+        const wordsTyped = correctChars / 5; // Assuming average word length of 5
+        const wpm = elapsedTime > 0 ? Math.round((wordsTyped / elapsedTime) * 60) : 0;
+        const accuracy = totalChars > 0 ? Math.round((correctChars / totalChars) * 100) : 100;
+
+        wpmDisplay.innerText = wpm;
+        accuracyDisplay.innerText = accuracy;
+    }
+
+    userInput.addEventListener('input', () => {
+        const textSpans = textDisplay.querySelectorAll('span');
+        const inputValue = userInput.value;
+        const inputChar = inputValue[charIndex];
+        const quoteChar = currentQuote[charIndex];
+
+
+        if (!startTime) {
+            startTime = new Date();
+        }
+
+        if (inputChar == null) { // Handle backspace/delete
+            if (charIndex > 0) {
+                charIndex--;
+                totalChars--; // Decrement totalChars on backspace
+                if (textSpans[charIndex].classList.contains('correct')) {
+                    correctChars--;
+                }
+                textSpans[charIndex].classList.remove('correct', 'incorrect');
+            }
+        } else {
+            if (inputChar === quoteChar) {
+                textSpans[charIndex].classList.add('correct');
+                textSpans[charIndex].classList.remove('incorrect');
+                correctChars++;
+            } else {
+                textSpans[charIndex].classList.add('incorrect');
+                textSpans[charIndex].classList.remove('correct');
+                textDisplay.classList.add('shake');
+                setTimeout(() => textDisplay.classList.remove('shake'), 500);
+            }
+            charIndex++;
+            totalChars++;
+        }
+
+        let allTyped = true;
+        textSpans.forEach(span => {
+            if (!span.classList.contains('correct') && !span.classList.contains('incorrect')) {
+                allTyped = false;
+            }
+        });
+
+        if (allTyped || charIndex === currentQuote.length) {
+            initializeTest(); // Restart the test
+        } else {
+            updateStats(); // Update stats on every input change
+        }
+    });
+
+    initializeTest();
+    </script>
+</body>
+</html>
